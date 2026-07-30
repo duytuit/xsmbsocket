@@ -1,36 +1,30 @@
 {
   "format": 1,
   "restore": {
-    "D:\\dev\\xsmbsocket\\xsmbsocket.csproj": {}
+    "/Users/duytu/dev/dev_home/xsmbsocket/xsmbsocket.csproj": {}
   },
   "projects": {
-    "D:\\dev\\xsmbsocket\\xsmbsocket.csproj": {
+    "/Users/duytu/dev/dev_home/xsmbsocket/xsmbsocket.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\dev\\xsmbsocket\\xsmbsocket.csproj",
+        "projectUniqueName": "/Users/duytu/dev/dev_home/xsmbsocket/xsmbsocket.csproj",
         "projectName": "xsmbsocket",
-        "projectPath": "D:\\dev\\xsmbsocket\\xsmbsocket.csproj",
-        "packagesPath": "C:\\Users\\JtecHN\\.nuget\\packages\\",
-        "outputPath": "D:\\dev\\xsmbsocket\\obj\\",
+        "projectPath": "/Users/duytu/dev/dev_home/xsmbsocket/xsmbsocket.csproj",
+        "packagesPath": "/Users/duytu/.nuget/packages/",
+        "outputPath": "/Users/duytu/dev/dev_home/xsmbsocket/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\JtecHN\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/duytu/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "net5.0"
+          "net6.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net5.0": {
-            "targetAlias": "net5.0",
+          "net6.0": {
+            "targetAlias": "net6.0",
             "projectReferences": {}
           }
         },
@@ -38,11 +32,17 @@
           "warnAsError": [
             "NU1605"
           ]
-        }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.200"
       },
       "frameworks": {
-        "net5.0": {
-          "targetAlias": "net5.0",
+        "net6.0": {
+          "targetAlias": "net6.0",
           "dependencies": {
             "Swashbuckle.AspNetCore": {
               "target": "Package",
@@ -68,7 +68,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.428\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.203/RuntimeIdentifierGraph.json"
         }
       }
     }

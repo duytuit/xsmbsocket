@@ -61,36 +61,40 @@ namespace xsmbsocket.Services
             );
         }
 
-        private async Task ReceiveLoop(
-            CancellationToken token)
+        private async Task ReceiveLoop(CancellationToken token)
         {
             var buffer = new byte[8192];
 
             while (_socket.State == WebSocketState.Open)
             {
-                var result = await _socket.ReceiveAsync(
-                    buffer,
-                    token
-                );
+                try
+                {
+                    var result = await _socket.ReceiveAsync(
+                        new ArraySegment<byte>(buffer),
+                        token
+                    );
 
-                if (result.MessageType ==
-                    WebSocketMessageType.Close)
+                    if (result.MessageType ==
+                        WebSocketMessageType.Close)
+                    {
+                        break;
+                    }
+
+                    var message = Encoding.UTF8.GetString(
+                        buffer,
+                        0,
+                        result.Count
+                    );
+
+                    await _manager.BroadcastAsync(
+                        message,
+                        token
+                    );
+                }
+                catch
                 {
                     break;
                 }
-
-                var message = Encoding.UTF8.GetString(
-                    buffer,
-                    0,
-                    result.Count
-                );
-
-                Console.WriteLine(message);
-
-                await _manager.BroadcastAsync(
-                    message,
-                    token
-                );
             }
         }
     }

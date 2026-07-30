@@ -1,11 +1,1 @@
-{
-  "Version": 1,
-  "Hash": "jpOYhxjeA4gG8ng493V661dZljJRac6hz/bEm0xgtl4=",
-  "Source": "xsmbsocket",
-  "BasePath": "_content/xsmbsocket",
-  "Mode": "Default",
-  "ManifestType": "Build",
-  "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
-  "Assets": []
-}
+{"Version":1,"Hash":"4qFJal8kRCoZlxgvNGZ5wECm7ywNJZab+EibVUVJGio=","Source":"xsmbsocket","BasePath":"/","Mode":"Root","ManifestType":"Build","ReferencedProjectsConfiguration":[],"DiscoveryPatterns":[],"Assets":[],"Endpoints":[]}
