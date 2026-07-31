@@ -3,7 +3,7 @@ using System.Net.WebSockets;
 
 namespace xsmbsocket.Models
 {
-    public class ClientInfo
+    public class ClientsInfo
     {
         public Guid Id { get; set; }
 

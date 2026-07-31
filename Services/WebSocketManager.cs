@@ -12,12 +12,12 @@ namespace xsmbsocket.Services
 {
     public class WebSocketManager
     {
-        private readonly ConcurrentDictionary<Guid, ClientInfo> _clients
-            = new ConcurrentDictionary<Guid, ClientInfo>();
+        private readonly ConcurrentDictionary<Guid, ClientsInfo> _clients
+            = new ConcurrentDictionary<Guid, ClientsInfo>();
 
         public int TotalConnections => _clients.Count;
 
-        public void Add(ClientInfo client)
+        public void Add(ClientsInfo client)
         {
             _clients.TryAdd(client.Id, client);
         }
@@ -36,7 +36,7 @@ namespace xsmbsocket.Services
             }
         }
 
-        public List<ClientInfo> GetClients()
+        public List<ClientsInfo> GetClients()
         {
             return _clients.Values.ToList();
         }
