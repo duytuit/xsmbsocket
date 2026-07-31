@@ -89,20 +89,13 @@ namespace xsmbsocket.Services
 
         public void RemoveTimeoutClients()
         {
-            var timeout = DateTime.Now.AddMinutes(-1);
-
-            foreach (var item in _clients.Values)
-            {
-                if (item.LastSeen < timeout)
-                {
-                    Remove(item.Id);
-                }
-            }
+            // Activity is now tracked by socket receive/send events instead of
+            // a hard one-minute timeout. This method is intentionally kept as a
+            // no-op to avoid disconnecting healthy clients.
         }
+
         public void RemoveDisconnected()
         {
-            var timeout = DateTime.Now.AddMinutes(-1);
-
             var disconnected = new List<Guid>();
 
             foreach (var item in _clients)
@@ -116,12 +109,6 @@ namespace xsmbsocket.Services
                 }
 
                 if (client.Socket.State != WebSocketState.Open)
-                {
-                    disconnected.Add(client.Id);
-                    continue;
-                }
-
-                if (client.LastSeen < timeout)
                 {
                     disconnected.Add(client.Id);
                 }

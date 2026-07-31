@@ -24,8 +24,6 @@ namespace xsmbsocket.Services
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                _manager.RemoveTimeoutClients();
-
                 _logger.LogInformation(
                     $"Connections: {_manager.TotalConnections}"
                 );

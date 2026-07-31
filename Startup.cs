@@ -58,7 +58,6 @@ namespace xsmbsocket
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-
                 endpoints.Map("/ws", async context =>
                 {
                     if (!context.WebSockets.IsWebSocketRequest)
@@ -66,20 +65,9 @@ namespace xsmbsocket
                         context.Response.StatusCode = 400;
                         return;
                     }
-                    var origin = context.Request.Headers["Origin"].ToString();
-
-                    if (origin != "https://xosodaiphat.com")
-                    {
-                        context.Response.StatusCode = 403;
-                        return;
-                    }
-                    var manager = context.RequestServices
-                        .GetRequiredService<WebSocketManager>();
-
                     var socket = await context
-                        .WebSockets
-                        .AcceptWebSocketAsync();
-
+                   .WebSockets
+                   .AcceptWebSocketAsync();
                     var client = new ClientInfo
                     {
                         Id = Guid.NewGuid(),
@@ -92,33 +80,36 @@ namespace xsmbsocket
                         SentBytes = 0,
                         ReceivedBytes = 0
                     };
+                    var manager = context.RequestServices
+                        .GetRequiredService<WebSocketManager>();
+
+               
+
 
                     manager.Add(client);
 
-                    Console.WriteLine(
-                        $"Connected: {client.Id} - {client.IpAddress}");
+                    var buffer = new byte[8192];
 
-                    try
+                    while (socket.State == System.Net.WebSockets.WebSocketState.Open)
                     {
-                        while (
-                    socket.State == WebSocketState.Open &&
-                    !context.RequestAborted.IsCancellationRequested)
-                        {
-                            await Task.Delay(5000);
-                        }
-                    }
-                    finally
-                    {
-                        manager.Remove(client.Id);
+                        var result = await socket.ReceiveAsync(
+                            new ArraySegment<byte>(buffer),
+                            CancellationToken.None);
 
-                        try
+                        if (result.MessageType == WebSocketMessageType.Close)
                         {
-                            socket.Dispose();
+                            await socket.CloseAsync(
+                                WebSocketCloseStatus.NormalClosure,
+                                "Closed by client",
+                                CancellationToken.None);
+                            break;
                         }
-                        catch
-                        {
-                        }
+
+                        client.LastSeen = DateTime.UtcNow;
+                        client.ReceivedBytes += result.Count;
                     }
+
+                    manager.Remove(client.Id);
                 });
             });
         }
