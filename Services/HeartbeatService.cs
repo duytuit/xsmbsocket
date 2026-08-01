@@ -11,16 +11,13 @@ namespace xsmbsocket.Services
         private readonly ILogger<HeartbeatService> _logger;
         private readonly WebSocketManager _manager;
 
-        public HeartbeatService(
-            ILogger<HeartbeatService> logger,
-            WebSocketManager manager)
+        public HeartbeatService( ILogger<HeartbeatService> logger, WebSocketManager manager)
         {
             _logger = logger;
             _manager = manager;
         }
 
-        protected override async Task ExecuteAsync(
-            CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync( CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {

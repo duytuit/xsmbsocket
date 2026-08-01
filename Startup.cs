@@ -21,6 +21,9 @@ using xsmbsocket.Services;
 using xsmbsocket.Shares;
 using xsmbsocket.Shares.BaseRepository;
 using xsmbsocket.Shares.Connects;
+using Microsoft.Extensions.Options;
+using xsmbsocket.Middlewares;
+using xsmbsocket.Lotterys;
 
 namespace xsmbsocket
 {
@@ -70,19 +73,24 @@ namespace xsmbsocket
             services.AddHostedService<LiveSocketService>();
             services.AddHostedService<ClientCleanupService>();
             services.AddHostedService<HeartbeatService>();
+            services.AddLotteryModule();
             services.AddControllers();
 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(
-      IApplicationBuilder app,
-      IWebHostEnvironment env)
+        public void Configure( IApplicationBuilder app, IWebHostEnvironment env)
         {
+            var telegramConfig = app.ApplicationServices.GetRequiredService<IOptions<TelegramSettings>>();
+            Helper.ConfigureTelegram(telegramConfig.Value);
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors("AllowAll"); // Quan trọng: phải đặt trước UseAuthorization nếu có
+
+            app.UseMiddleware<ExceptionMiddleware>();
 
             app.UseAuthorization();
 
@@ -110,22 +118,14 @@ namespace xsmbsocket
                         Socket = socket,
                         ConnectedAt = DateTime.Now,
                         LastSeen = DateTime.Now,
-                        IpAddress = context.Connection
-                            .RemoteIpAddress?
-                            .ToString(),
+                        IpAddress = context.Connection .RemoteIpAddress?.ToString(),
                         SentBytes = 0,
                         ReceivedBytes = 0
                     };
                     var manager = context.RequestServices
                         .GetRequiredService<WebSocketManager>();
-
-               
-
-
                     manager.Add(client);
-
                     var buffer = new byte[8192];
-
                     while (socket.State == System.Net.WebSockets.WebSocketState.Open)
                     {
                         var result = await socket.ReceiveAsync(
@@ -140,11 +140,9 @@ namespace xsmbsocket
                                 CancellationToken.None);
                             break;
                         }
-
                         client.LastSeen = DateTime.UtcNow;
                         client.ReceivedBytes += result.Count;
                     }
-
                     manager.Remove(client.Id);
                 });
             });

@@ -12,8 +12,7 @@ namespace xsmbsocket.Services
 {
     public class WebSocketManager
     {
-        private readonly ConcurrentDictionary<Guid, ClientsInfo> _clients
-            = new ConcurrentDictionary<Guid, ClientsInfo>();
+        private readonly ConcurrentDictionary<Guid, ClientsInfo> _clients = new ConcurrentDictionary<Guid, ClientsInfo>();
 
         public int TotalConnections => _clients.Count;
 
@@ -41,9 +40,7 @@ namespace xsmbsocket.Services
             return _clients.Values.ToList();
         }
 
-        public async Task BroadcastAsync(
-     string message,
-     CancellationToken token)
+        public async Task BroadcastAsync(string message, CancellationToken token)
         {
             var bytes = Encoding.UTF8.GetBytes(message);
 

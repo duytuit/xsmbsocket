@@ -17,3 +17,4 @@ obj/
 **/obj/
 
 *.json
+publish/

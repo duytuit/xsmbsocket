@@ -7,6 +7,9 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using xsmbsocket.Lotterys.Models;
+using xsmbsocket.Lotterys.Dtos;
+using xsmbsocket.Lotterys.Repositories;
 
 namespace xsmbsocket.Services
 {
@@ -16,16 +19,16 @@ namespace xsmbsocket.Services
         private readonly ILogger<LiveSocketService> _logger;
         private readonly WebSocketManager _manager;
 
-        public LiveSocketService(
-            ILogger<LiveSocketService> logger,
-            WebSocketManager manager)
+        private readonly ILotteryRepositories _repoLottery;
+
+        public LiveSocketService(ILogger<LiveSocketService> logger, WebSocketManager manager, ILotteryRepositories repoLottery)
         {
             _logger = logger;
             _manager = manager;
+            _repoLottery = repoLottery;
         }
 
-        protected override async Task ExecuteAsync(
-            CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -36,15 +39,14 @@ namespace xsmbsocket.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex.Message);
+                    // _logger.LogError(ex.Message);
                 }
 
                 await Task.Delay(5000, stoppingToken);
             }
         }
 
-        private async Task ConnectAsync(
-            CancellationToken token)
+        private async Task ConnectAsync(CancellationToken token)
         {
             _socket?.Dispose();
 
@@ -64,6 +66,8 @@ namespace xsmbsocket.Services
         private async Task ReceiveLoop(CancellationToken token)
         {
             var buffer = new byte[8192];
+
+            var now = DateTime.Now;
 
             while (_socket.State == WebSocketState.Open)
             {
@@ -90,6 +94,17 @@ namespace xsmbsocket.Services
                         message,
                         token
                     );
+                    if (message != "0")
+                    {
+                        var lottery = new Lottery
+                        {
+                            Data = message,
+                            CreatedAt = now,
+                            UpdatedAt = now
+                        };
+                        await _repoLottery.CreateAsync(lottery);
+                    }
+                   
                 }
                 catch
                 {
