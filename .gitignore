@@ -18,3 +18,5 @@ obj/
 
 *.json
 publish/
+
+Logs/
