@@ -69,11 +69,11 @@ namespace xsmbsocket
             services.Configure<ConnectionStrings>(Configuration.GetSection("ConnectionStrings"));
             services.AddTransient<AdoXoSoDB>();
             services.AddSingleton<RedisService>();
+            services.AddLotteryModule();
             services.AddSingleton<WebSocketManager>();
             services.AddHostedService<LiveSocketService>();
             services.AddHostedService<ClientCleanupService>();
             services.AddHostedService<HeartbeatService>();
-            services.AddLotteryModule();
             services.AddControllers();
 
         }
