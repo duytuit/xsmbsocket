@@ -45,7 +45,7 @@ namespace xsmbsocket.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "LiveSocketService error");
+                    // _logger.LogError(ex, "LiveSocketService error");
                 }
 
                 try
