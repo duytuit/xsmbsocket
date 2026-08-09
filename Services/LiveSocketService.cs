@@ -105,7 +105,7 @@ namespace xsmbsocket.Services
                         message,
                         token
                     );
-
+                      _logger.LogInformation("Received message: {Message}", message);
                     if (message != "0")
                     {
                         var now = DateTime.Now;
@@ -116,7 +116,6 @@ namespace xsmbsocket.Services
                             CreatedAt = now,
                             UpdatedAt = now
                         };
-
                         // Tạo scope cho Scoped Repository
                         using var scope = _scopeFactory.CreateScope();
 

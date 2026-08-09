@@ -1,11 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.IO;
 using Serilog;
 
 namespace xsmbsocket
@@ -14,8 +10,9 @@ namespace xsmbsocket
     {
         public static void Main(string[] args)
         {
-            // Khởi tạo cấu hình Serilog
-            Log.Logger = new LoggerConfiguration()
+         
+
+          Log.Logger = new LoggerConfiguration()
                 .WriteTo.File(
                     path: "Logs/log-.txt",                // đường dẫn log
                     rollingInterval: RollingInterval.Day, // mỗi ngày 1 file
@@ -27,7 +24,11 @@ namespace xsmbsocket
             try
             {
                 Log.Information("Starting web host");
-                CreateHostBuilder(args).Build().Run();
+                Log.Information("Log directory: {LogDirectory}", "Logs");
+
+                CreateHostBuilder(args)
+                    .Build()
+                    .Run();
             }
             catch (Exception ex)
             {
@@ -41,7 +42,7 @@ namespace xsmbsocket
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .UseSerilog() // 👉 Thêm dòng này để dùng Serilog
+                .UseSerilog()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
