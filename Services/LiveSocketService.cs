@@ -116,7 +116,7 @@ namespace xsmbsocket.Services
                             CreatedAt = now,
                             UpdatedAt = now
                         };
-                        // Tạo scope cho Scoped Repository
+                        // //Tạo scope cho Scoped Repository
                         using var scope = _scopeFactory.CreateScope();
 
                         var repoLottery =

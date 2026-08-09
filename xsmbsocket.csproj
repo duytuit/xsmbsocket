@@ -21,9 +21,9 @@
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.8.58" />
   </ItemGroup>
-   <ItemGroup>
-    <Folder Include="Logs\" />
-  </ItemGroup>
+ <Target Name="CreateLogsDirectory" AfterTargets="Publish">
+  <MakeDir Directories="$(PublishDir)Logs" />
+</Target>
   <ItemGroup>
     <Content Update="web.config">
       <CopyToPublishDirectory>Always</CopyToPublishDirectory>
