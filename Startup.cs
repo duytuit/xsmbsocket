@@ -24,6 +24,7 @@ using xsmbsocket.Shares.Connects;
 using Microsoft.Extensions.Options;
 using xsmbsocket.Middlewares;
 using xsmbsocket.Lotterys;
+using xsmbsocket.Lotterys.Repositories;
 
 namespace xsmbsocket
 {
@@ -75,7 +76,19 @@ namespace xsmbsocket
             services.AddHostedService<ClientCleanupService>();
             services.AddHostedService<HeartbeatService>();
             services.AddControllers();
+            services.AddHttpClient(
+                "Vietlott",
+                client =>
+                {
+                    client.Timeout =
+                        TimeSpan.FromSeconds(30);
 
+                    client.DefaultRequestHeaders.Add(
+                        "User-Agent",
+                        "Mozilla/5.0");
+                });
+             services.AddScoped<VietlottRepository>();
+             services.AddHostedService< VietlottCrawlerService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
