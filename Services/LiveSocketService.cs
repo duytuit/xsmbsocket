@@ -116,6 +116,43 @@ namespace xsmbsocket.Services
                             CreatedAt = now,
                             UpdatedAt = now
                         };
+                        bool isFinal = false;
+
+                        if (message.Contains("0|1"))
+                        {
+                            // Miền Bắc
+                            // Không có @| => kết quả cuối cùng
+                            if (!message.Contains("@|"))
+                            {
+                                isFinal = true;
+                            }
+                        }
+                        else if (message.Contains("0|2"))
+                        {
+                            // Miền Nam
+                            // Có 3 lần khác @|
+                            var count = message.Split(new[] { "@|" }, StringSplitOptions.None).Length - 1;
+
+                            if (count >= 3)
+                            {
+                                isFinal = true;
+                            }
+                        }
+                        else if (message.Contains("0|3"))
+                        {
+                            // Miền Trung
+                            // Có 3 lần khác @|
+                            var count = message.Split(new[] { "@|" }, StringSplitOptions.None).Length - 1;
+
+                            if (count >= 3)
+                            {
+                                isFinal = true;
+                            }
+                        }
+                        if (isFinal)
+                        {
+                            lottery.Code= message;
+                        }
                         // //Tạo scope cho Scoped Repository
                         using var scope = _scopeFactory.CreateScope();
 
