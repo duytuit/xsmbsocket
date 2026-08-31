@@ -116,40 +116,31 @@ namespace xsmbsocket.Services
                             CreatedAt = now,
                             UpdatedAt = now
                         };
-                        bool isFinal = false;
+                        bool isFinalResult = false;
 
-                        if (message.Contains("0|1"))
+                        if (message.StartsWith("0|1"))
                         {
                             // Miền Bắc
-                            // Không có @| => kết quả cuối cùng
-                            if (!message.Contains("@|"))
-                            {
-                                isFinal = true;
-                            }
+                            // Chỉ có 1 tỉnh
+                            isFinalResult = true;
                         }
-                        else if (message.Contains("0|2"))
+                        else if (message.StartsWith("0|2"))
                         {
                             // Miền Nam
-                            // Có 3 lần khác @|
-                            var count = message.Split(new[] { "@|" }, StringSplitOptions.None).Length - 1;
+                            // Phải có đủ 3 tỉnh
+                            int count = CountOccurrences(message, "!1|");
 
-                            if (count >= 3)
-                            {
-                                isFinal = true;
-                            }
+                            isFinalResult = count >= 3;
                         }
-                        else if (message.Contains("0|3"))
+                        else if (message.StartsWith("0|3"))
                         {
                             // Miền Trung
-                            // Có 3 lần khác @|
-                            var count = message.Split(new[] { "@|" }, StringSplitOptions.None).Length - 1;
+                            // Phải có đủ 3 tỉnh
+                            int count = CountOccurrences(message, "!1|");
 
-                            if (count >= 3)
-                            {
-                                isFinal = true;
-                            }
+                            isFinalResult = count >= 3;
                         }
-                        if (isFinal)
+                        if (isFinalResult)
                         {
                             lottery.Code= message;
                         }
@@ -179,8 +170,7 @@ namespace xsmbsocket.Services
             }
         }
 
-        public override async Task StopAsync(
-            CancellationToken cancellationToken)
+        public override async Task StopAsync(CancellationToken cancellationToken)
         {
             try
             {
@@ -202,6 +192,25 @@ namespace xsmbsocket.Services
             _socket?.Dispose();
 
             await base.StopAsync(cancellationToken);
+        }
+        private static int CountOccurrences(string text, string search)
+        {
+            if (string.IsNullOrEmpty(text) ||
+                string.IsNullOrEmpty(search))
+            {
+                return 0;
+            }
+
+            int count = 0;
+            int index = 0;
+
+            while ((index = text.IndexOf(search, index)) >= 0)
+            {
+                count++;
+                index += search.Length;
+            }
+
+            return count;
         }
     }
 }
