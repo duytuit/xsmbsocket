@@ -29,8 +29,7 @@ namespace xsmbsocket.Services
             _scopeFactory = scopeFactory;
         }
 
-        protected override async Task ExecuteAsync(
-            CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync( CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -65,47 +64,30 @@ namespace xsmbsocket.Services
 
             _socket = new ClientWebSocket();
 
-            _socket.Options.SetRequestHeader(
-                "Origin",
-                "https://xosodaiphat.com"
-            );
+            _socket.Options.SetRequestHeader( "Origin", "https://xosodaiphat.com" );
 
-            await _socket.ConnectAsync(
-                new Uri("wss://livewk.xosodaiphat.com"),
-                token
-            );
+            await _socket.ConnectAsync( new Uri("wss://livewk.xosodaiphat.com"),token );
         }
 
         private async Task ReceiveLoop(CancellationToken token)
         {
             var buffer = new byte[8192];
 
-            while (_socket.State == WebSocketState.Open &&
-                   !token.IsCancellationRequested)
+            while (_socket.State == WebSocketState.Open && !token.IsCancellationRequested)
             {
                 try
                 {
-                    var result = await _socket.ReceiveAsync(
-                        new ArraySegment<byte>(buffer),
-                        token
-                    );
+                    var result = await _socket.ReceiveAsync( new ArraySegment<byte>(buffer), token );
 
                     if (result.MessageType == WebSocketMessageType.Close)
                     {
                         break;
                     }
 
-                    var message = Encoding.UTF8.GetString(
-                        buffer,
-                        0,
-                        result.Count
-                    );
+                    var message = Encoding.UTF8.GetString( buffer,0, result.Count);
 
-                    await _manager.BroadcastAsync(
-                        message,
-                        token
-                    );
-                      _logger.LogInformation("Received message: {Message}", message);
+                    await _manager.BroadcastAsync( message, token);
+                    _logger.LogInformation("Received message: {Message}", message);
                     if (message != "0")
                     {
                         var now = DateTime.Now;
@@ -117,12 +99,14 @@ namespace xsmbsocket.Services
                             UpdatedAt = now
                         };
                         bool isFinalResult = false;
+                        string type = "";
 
                         if (message.StartsWith("0|1"))
                         {
                             // Miền Bắc
                             // Chỉ có 1 tỉnh
                             isFinalResult = true;
+                            type = "mienbac";
                         }
                         else if (message.StartsWith("0|2"))
                         {
@@ -131,6 +115,7 @@ namespace xsmbsocket.Services
                             int count = CountOccurrences(message, "!1|");
 
                             isFinalResult = count >= 3;
+                            type = "miennam";
                         }
                         else if (message.StartsWith("0|3"))
                         {
@@ -139,6 +124,7 @@ namespace xsmbsocket.Services
                             int count = CountOccurrences(message, "!1|");
 
                             isFinalResult = count >= 3;
+                            type = "mientrung";
                         }
                         if (isFinalResult)
                         {
@@ -147,10 +133,25 @@ namespace xsmbsocket.Services
                         // //Tạo scope cho Scoped Repository
                         using var scope = _scopeFactory.CreateScope();
 
-                        var repoLottery =
-                            scope.ServiceProvider
-                                .GetRequiredService<ILotteryRepositories>();
-
+                        var repoLottery = scope.ServiceProvider.GetRequiredService<ILotteryRepositories>();
+                        var _lotteryResult = await repoLottery.ShowLotteryResultByTypeAndDateAsync(type, now);
+                        if (_lotteryResult != null)
+                        {
+                            _lotteryResult.Data = message;
+                            _lotteryResult.UpdatedAt = now;
+                            await repoLottery.UpdateLotteryResultAsync(_lotteryResult);
+                        }
+                        else
+                        {
+                            var lotteryResult = new LotteryResult
+                            {
+                                Data = message,
+                                Type = type,
+                                CreatedAt = now,
+                                UpdatedAt = now
+                            };
+                            await repoLottery.CreateLotteryResultAsync(lotteryResult);
+                        }
                         await repoLottery.CreateAsync(lottery);
                     }
                 }
@@ -160,10 +161,7 @@ namespace xsmbsocket.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(
-                        ex,
-                        "Error receiving WebSocket message"
-                    );
+                    _logger.LogError( ex, "Error receiving WebSocket message" );
 
                     break;
                 }
@@ -174,14 +172,9 @@ namespace xsmbsocket.Services
         {
             try
             {
-                if (_socket != null &&
-                    _socket.State == WebSocketState.Open)
+                if (_socket != null && _socket.State == WebSocketState.Open)
                 {
-                    await _socket.CloseAsync(
-                        WebSocketCloseStatus.NormalClosure,
-                        "Service stopping",
-                        cancellationToken
-                    );
+                    await _socket.CloseAsync( WebSocketCloseStatus.NormalClosure,"Service stopping",cancellationToken);
                 }
             }
             catch

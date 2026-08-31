@@ -14,7 +14,10 @@ namespace xsmbsocket.Lotterys.Repositories
     {
         Task<PaginatedResultReact<object>> GetObjectTaskAsync(LotteryDto LotteryDto, int page, int pageSize, CancellationToken cancellationToken);
         Task<Lottery> ShowAsync(int id);
+        Task<LotteryResult> ShowLotteryResultByTypeAndDateAsync(string type, DateTime date);
         Task<Lottery> CreateAsync(Lottery Lottery);
+        Task<LotteryResult> CreateLotteryResultAsync(LotteryResult LotteryResult);
+        Task<LotteryResult> UpdateLotteryResultAsync(LotteryResult LotteryResult);
         Task<Lottery> UpdateAsync(Lottery Lottery);
         Task<Lottery> DeleteSoftAsync(Lottery Lottery);
     }
