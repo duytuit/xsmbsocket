@@ -11,12 +11,9 @@ namespace xsmbsocket.Lotterys.Repositories
     {
         private readonly string _connectionString;
 
-        public VietlottRepository(
-            IConfiguration configuration)
+        public VietlottRepository( IConfiguration configuration)
         {
-            _connectionString =
-                configuration.GetConnectionString(
-                    "DefaultConnection");
+            _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
         private IDbConnection CreateConnection()
@@ -24,17 +21,13 @@ namespace xsmbsocket.Lotterys.Repositories
             return new SqlConnection(_connectionString);
         }
 
-        public async Task<long> SaveResultAsync(
-            VietlottResult item,
-            CancellationToken cancellationToken)
+        public async Task<long> SaveResultAsync( VietlottResult item, CancellationToken cancellationToken)
         {
-            using var connection =
-                CreateConnection();
+            using var connection = CreateConnection();
 
             if (connection is SqlConnection sqlConnection)
             {
-                await sqlConnection.OpenAsync(
-                    cancellationToken);
+                await sqlConnection.OpenAsync(cancellationToken);
             }
             else
             {
@@ -65,8 +58,7 @@ namespace xsmbsocket.Lotterys.Repositories
 
             if (!resultId.HasValue)
             {
-                resultId =
-                    await connection.ExecuteScalarAsync<long>(
+                resultId = await connection.ExecuteScalarAsync<long>(
                         @"
                         INSERT INTO dbo.VietlottResults
                         (
@@ -121,10 +113,7 @@ namespace xsmbsocket.Lotterys.Repositories
                         });
 
                 // Lưu giải
-                await SavePrizesAsync(
-                    connection,
-                    resultId.Value,
-                    item);
+                await SavePrizesAsync( connection, resultId.Value, item);
 
                 return resultId.Value;
             }
@@ -191,21 +180,14 @@ namespace xsmbsocket.Lotterys.Repositories
             // INSERT GIẢI MỚI
             // ==========================================
 
-            await SavePrizesAsync(
-                connection,
-                resultId.Value,
-                item);
+            await SavePrizesAsync( connection, resultId.Value,  item);
 
             return resultId.Value;
         }
 
-        private async Task SavePrizesAsync(
-            IDbConnection connection,
-            long resultId,
-            VietlottResult item)
+        private async Task SavePrizesAsync( IDbConnection connection, long resultId, VietlottResult item)
         {
-            if (item.Prizes == null ||
-                item.Prizes.Count == 0)
+            if (item.Prizes == null || item.Prizes.Count == 0)
             {
                 return;
             }

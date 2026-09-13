@@ -8,6 +8,7 @@ namespace xsmbsocket.Shares.BaseRepository
     public class XoSoDBContext : DbContext
     {
         public DbSet<Lottery> Lotteries { get; set; }
+        public DbSet<LotteryResult> LotteryResults { get; set; }
         public XoSoDBContext(DbContextOptions<XoSoDBContext> options) : base(options)
         {
             
@@ -16,6 +17,7 @@ namespace xsmbsocket.Shares.BaseRepository
         protected override void OnModelCreating(ModelBuilder modelBuider)
         {
             modelBuider.Entity<Lottery>().HasQueryFilter(e => e.DeletedAt == null);
+            modelBuider.Entity<LotteryResult>().HasQueryFilter(e => e.DeletedAt == null);
         }           
     }
 }

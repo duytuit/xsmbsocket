@@ -32,6 +32,25 @@ namespace xsmbsocket.Lotterys.Repositories
             return Task.FromResult(Lottery);
         }
 
+        public Task<LotteryResult> CreateLotteryResultAsync(LotteryResult LotteryResult)
+        {
+            _context.LotteryResults.Add(LotteryResult);
+            _context.SaveChanges();
+            return Task.FromResult(LotteryResult);
+        }
+
+        public Task<LotteryResult> UpdateLotteryResultAsync(LotteryResult LotteryResult)
+        {
+            _context.LotteryResults.Update(LotteryResult);
+            _context.SaveChanges();
+            return Task.FromResult(LotteryResult);
+        }
+
+        public Task<LotteryResult> ShowLotteryResultByTypeAndDateAsync(string type, DateTime date)
+        {
+            return _context.LotteryResults.AsNoTracking().FirstOrDefaultAsync(x => x.Type == type && x.CreatedAt.Value.Date == date.Date);
+        }
+
         public Task<Lottery> DeleteSoftAsync(Lottery Lottery)
         {
             _context.Lotteries.Update(Lottery);
