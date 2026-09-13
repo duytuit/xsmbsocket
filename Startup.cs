@@ -76,6 +76,20 @@ namespace xsmbsocket
             services.AddHostedService<ClientCleanupService>();
             services.AddHostedService<HeartbeatService>();
             services.AddControllers();
+            services.AddScoped<XoSoRepository>(sp =>
+                new XoSoRepository(
+                    Configuration.GetConnectionString("DefaultConnection")));
+            services.AddHostedService<XoSoCrawlerService>();
+            services.AddSingleton<XoSoTrucTiepHtmlParser>();
+            services.AddHttpClient(
+                "XoSo",
+                client =>
+                {
+                    client.Timeout = TimeSpan.FromSeconds(30);
+                    client.DefaultRequestHeaders.Add(
+                        "User-Agent",
+                        "Mozilla/5.0");
+                });
             services.AddHttpClient(
                 "Vietlott",
                 client =>
