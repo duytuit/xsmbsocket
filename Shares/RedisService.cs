@@ -81,6 +81,25 @@ namespace xsmbsocket.Shares
             return await _redisDb.KeyExistsAsync(key);
         }
 
+        public async Task<long> EnqueueAsync(string key, string value, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return await _redisDb.ListRightPushAsync(key, value);
+        }
+
+        public async Task<string> PeekQueueAsync(string key, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var value = await _redisDb.ListGetByIndexAsync(key, 0);
+            return value.HasValue ? value.ToString() : null;
+        }
+
+        public async Task<bool> RemoveQueueItemAsync(string key, string value, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return await _redisDb.ListRemoveAsync(key, value, 1) > 0;
+        }
+
         public async Task<bool> RemoveAsync(string key, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();

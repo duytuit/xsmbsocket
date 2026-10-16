@@ -8,11 +8,7 @@ using System.Linq;
 using System.Net.WebSockets;
 using System;
 using System.Text;
-using AngleSharp.Dom;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace xsmbsocket.Services
@@ -122,6 +118,30 @@ namespace xsmbsocket.Services
                 if (numbers.Count == 0)
                     continue;
 
+                var estimatedPrizeTexts =
+                    main.QuerySelectorAll(".so_tien h3")
+                        .Select(x => x.TextContent.Trim())
+                        .ToList();
+
+                if (estimatedPrizeTexts.Count == 0)
+                {
+                    estimatedPrizeTexts =
+                        main.Children
+                            .Select(x => x.TextContent.Trim())
+                            .Where(x => Regex.IsMatch(
+                                x,
+                                @"\d[\d.]*\s*(?:VNĐ|VND)",
+                                RegexOptions.IgnoreCase))
+                            .ToList();
+                }
+
+                var estimatedPrizes =
+                    estimatedPrizeTexts
+                        .Select(x => Regex.Replace(x, @"[^0-9]", ""))
+                        .Where(x => long.TryParse(x, out _))
+                        .Select(long.Parse)
+                        .ToList();
+
                 results.Add(
                     new VietlottResult
                     {
@@ -131,6 +151,14 @@ namespace xsmbsocket.Services
                             dateMatch.Groups[1].Value,
                             "dd/MM/yyyy",
                             CultureInfo.InvariantCulture),
+
+                        EstimatedPrize = estimatedPrizes.Count > 0
+                            ? estimatedPrizes[0]
+                            : null,
+                        EstimatedPrize2 = estimatedPrizes.Count > 1
+                            ? estimatedPrizes[1]
+                            : null,
+
                         Numbers = numbers,
                         SpecialNumbers = special
                     });

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using AngleSharp.Dom;
@@ -30,16 +31,14 @@ namespace xsmbsocket.Services
             }
 
             var document = new HtmlParser().ParseDocument(html);
-            var drawDate = ParseDrawDate(document);
-
-            if (drawDate == DateTime.MinValue)
-            {
-                return results;
-            }
 
             foreach (var section in document.QuerySelectorAll(".khung"))
             {
-                ParseSection(section, drawDate, results);
+                var drawDate = ParseDrawDate(section);
+                if (drawDate != DateTime.MinValue)
+                {
+                    ParseSection(section, drawDate, results);
+                }
             }
 
             return results;
@@ -137,17 +136,24 @@ namespace xsmbsocket.Services
                 results.Add(new XoSoResult
                 {
                     Region = region,
-                    ProvinceCode = provinceCode,
-                    ProvinceName = provinceName,
+                    ProvinceCode = region == "Miền Bắc" ? "Xổ Số Miền Bắc" : provinceCode,
+                    ProvinceName = region == "Miền Bắc" ? "Miền Bắc" : provinceName,
                     DrawDate = drawDate,
                     Prizes = prizes
                 });
             }
         }
 
-        private static DateTime ParseDrawDate(IDocument document)
+        private static DateTime ParseDrawDate(IElement section)
         {
-            var match = DateRegex.Match(document.Body?.TextContent ?? string.Empty);
+            var titleLoto = section.QuerySelector("[id^='titleLoto']");
+            var match = DateRegex.Match(titleLoto?.TextContent ?? string.Empty);
+            if (!match.Success)
+            {
+                var dayMonth = Normalize(section.QuerySelector("._date .dayMonth")?.TextContent);
+                var year = Normalize(section.QuerySelector("._date .year")?.TextContent);
+                match = DateRegex.Match($"{dayMonth}/{year}");
+            }
             return match.Success && DateTime.TryParseExact(
                 match.Groups[1].Value,
                 new[] { "d/M/yyyy", "dd/MM/yyyy" },
@@ -166,9 +172,13 @@ namespace xsmbsocket.Services
                 @"xo so mien (bac|trung|nam)",
                 RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-            return match.Success
-                ? $"Miền {match.Groups[1].Value}"
-                : "Không xác định";
+            return match.Groups[1].Value.ToLowerInvariant() switch
+            {
+                "bac" => "Miền Bắc",
+                "trung" => "Miền Trung",
+                "nam" => "Miền Nam",
+                _ => "Không xác định"
+            };
         }
 
         private static string Normalize(string value)
@@ -185,6 +195,7 @@ namespace xsmbsocket.Services
                 "\n",
                 RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             value = Regex.Replace(value, @"<[^>]+>", " ");
+            value = WebUtility.HtmlDecode(value);
 
             return Regex.Matches(value, @"\d+")
                 .Cast<Match>()

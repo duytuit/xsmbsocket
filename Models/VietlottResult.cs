@@ -14,6 +14,10 @@ namespace xsmbsocket.Models
 
         public DateTime DrawDate { get; set; }
 
+        public long? EstimatedPrize { get; set; }
+
+        public long? EstimatedPrize2 { get; set; }
+
         public List<string> Numbers { get; set; }
 
         public List<string> SpecialNumbers { get; set; }

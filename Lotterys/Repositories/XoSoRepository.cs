@@ -31,48 +31,48 @@ namespace xsmbsocket.Lotterys.Repositories
                 result.Prizes);
 
             const string sql = @"
-IF EXISTS
-(
-    SELECT 1
-    FROM dbo.XoSoResults
-    WHERE Region = @Region
-      AND ProvinceCode = @ProvinceCode
-      AND DrawDate = @DrawDate
-)
-BEGIN
+            IF EXISTS
+            (
+                SELECT 1
+                FROM dbo.XoSoResults
+                WHERE Region = @Region
+                AND ProvinceCode = @ProvinceCode
+                AND CONVERT(date, DrawDate) = @DrawDate
+            )
+            BEGIN
 
-    UPDATE dbo.XoSoResults
-    SET
-        ProvinceName = @ProvinceName,
-        Prizes = @Prizes,
-        UpdatedAt = GETDATE()
-    WHERE Region = @Region
-      AND ProvinceCode = @ProvinceCode
-      AND DrawDate = @DrawDate;
+                UPDATE dbo.XoSoResults
+                SET
+                    ProvinceName = @ProvinceName,
+                    Prizes = @Prizes,
+                    UpdatedAt = GETDATE()
+                WHERE Region = @Region
+                AND ProvinceCode = @ProvinceCode
+                AND CONVERT(date, DrawDate) = @DrawDate;
 
-END
-ELSE
-BEGIN
+            END
+            ELSE
+            BEGIN
 
-    INSERT INTO dbo.XoSoResults
-    (
-        Region,
-        ProvinceCode,
-        ProvinceName,
-        DrawDate,
-        Prizes
-    )
-    VALUES
-    (
-        @Region,
-        @ProvinceCode,
-        @ProvinceName,
-        @DrawDate,
-        @Prizes
-    );
+                INSERT INTO dbo.XoSoResults
+                (
+                    Region,
+                    ProvinceCode,
+                    ProvinceName,
+                    DrawDate,
+                    Prizes
+                )
+                VALUES
+                (
+                    @Region,
+                    @ProvinceCode,
+                    @ProvinceName,
+                    @DrawDate,
+                    @Prizes
+                );
 
-END
-";
+            END
+            ";
 
             await connection.ExecuteAsync(
                 new CommandDefinition(

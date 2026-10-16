@@ -65,6 +65,8 @@ namespace xsmbsocket.Lotterys.Repositories
                             GameCode,
                             DrawNo,
                             DrawDate,
+                            EstimatedPrize,
+                            EstimatedPrize2,
                             Numbers,
                             SpecialNumbers,
                             Total,
@@ -76,6 +78,8 @@ namespace xsmbsocket.Lotterys.Repositories
                             @GameCode,
                             @DrawNo,
                             @DrawDate,
+                            @EstimatedPrize,
+                            @EstimatedPrize2,
                             @Numbers,
                             @SpecialNumbers,
                             @Total,
@@ -92,6 +96,9 @@ namespace xsmbsocket.Lotterys.Repositories
                             item.GameCode,
                             item.DrawNo,
                             item.DrawDate,
+
+                            item.EstimatedPrize,
+                            item.EstimatedPrize2,
 
                             Numbers =
                                 item.Numbers != null
@@ -127,6 +134,8 @@ namespace xsmbsocket.Lotterys.Repositories
                 UPDATE dbo.VietlottResults
                 SET
                     DrawDate = @DrawDate,
+                    EstimatedPrize = @EstimatedPrize,
+                    EstimatedPrize2 = @EstimatedPrize2,
                     Numbers = @Numbers,
                     SpecialNumbers = @SpecialNumbers,
                     Total = @Total,
@@ -139,6 +148,9 @@ namespace xsmbsocket.Lotterys.Repositories
                     Id = resultId.Value,
 
                     item.DrawDate,
+
+                    item.EstimatedPrize,
+                    item.EstimatedPrize2,
 
                     Numbers =
                         item.Numbers != null

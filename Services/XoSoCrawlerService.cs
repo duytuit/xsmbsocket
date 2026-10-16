@@ -46,7 +46,7 @@ namespace xsmbsocket.Services
             {
                 var now = DateTime.Now;
                 var startTime = now.Date.AddHours(16);
-                var endTime = now.Date.AddHours(20);
+                var endTime = now.Date.AddHours(19);
 
                 if (now < startTime || now >= endTime)
                 {

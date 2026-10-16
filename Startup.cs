@@ -75,12 +75,15 @@ namespace xsmbsocket
             services.AddHostedService<LiveSocketService>();
             services.AddHostedService<ClientCleanupService>();
             services.AddHostedService<HeartbeatService>();
+            services.AddHostedService<LotteryResultCleanupService>();
             services.AddControllers();
             services.AddScoped<XoSoRepository>(sp =>
                 new XoSoRepository(
                     Configuration.GetConnectionString("DefaultConnection")));
-            services.AddHostedService<XoSoCrawlerService>();
+            services.AddHostedService<XsktMBCrawlerService>();
             services.AddSingleton<XoSoTrucTiepHtmlParser>();
+            services.AddHostedService<XsktMNCrawlerService>();
+            services.AddHostedService<XsktMTCrawlerService>();
             services.AddHttpClient(
                 "XoSo",
                 client =>

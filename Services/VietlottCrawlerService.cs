@@ -201,6 +201,14 @@ namespace xsmbsocket.Services
                 "DATE       : {Date}",
                 item.DrawDate.ToString("dd/MM/yyyy"));
 
+                if (item.EstimatedPrize.HasValue || item.EstimatedPrize2.HasValue)
+            {
+                _logger.LogInformation(
+                    "ESTIMATED  : {EstimatedPrize}; {EstimatedPrize2}",
+                    item.EstimatedPrize,
+                    item.EstimatedPrize2);
+            }
+
             // ==========================================
             // NUMBERS
             // LOTTO / MEGA / POWER / BINGO / KENO
