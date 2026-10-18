@@ -1,8 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Net.WebSockets;
+using System.IO;
+using System.Threading.Channels;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -17,6 +19,13 @@ namespace xsmbsocket.Services
     {
         private const string PendingResultsQueueKey = "live-socket:lottery-results:pending";
         private ClientWebSocket _socket;
+        private readonly Channel<PendingLotteryResult> _persistence = Channel.CreateBounded<PendingLotteryResult>(
+            new BoundedChannelOptions(128)
+            {
+                SingleReader = true,
+                SingleWriter = true,
+                FullMode = BoundedChannelFullMode.Wait
+            });
 
         private readonly ILogger<LiveSocketService> _logger;
         private readonly WebSocketManager _manager;
@@ -36,6 +45,30 @@ namespace xsmbsocket.Services
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            var persistenceTask = PersistLoopAsync(stoppingToken);
+            try
+            {
+                await RunConnectionLoopAsync(stoppingToken);
+            }
+            finally
+            {
+                _persistence.Writer.TryComplete();
+                await persistenceTask;
+            }
+        }
+
+        private async Task PersistLoopAsync(CancellationToken token)
+        {
+            try
+            {
+                await foreach (var result in _persistence.Reader.ReadAllAsync(token))
+                    await SaveOrQueueAsync(result.Data, result.ReceivedAt, token);
+            }
+            catch (OperationCanceledException) when (token.IsCancellationRequested) { }
+        }
+
+        private async Task RunConnectionLoopAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -115,20 +148,32 @@ namespace xsmbsocket.Services
             {
                 try
                 {
-                    var result = await _socket.ReceiveAsync( new ArraySegment<byte>(buffer), token );
+                    using var payload = new MemoryStream();
+                    WebSocketReceiveResult result;
+                    do
+                    {
+                        result = await _socket.ReceiveAsync(new ArraySegment<byte>(buffer), token);
+                        if (result.MessageType == WebSocketMessageType.Close)
+                            break;
+                        payload.Write(buffer, 0, result.Count);
+                    } while (!result.EndOfMessage);
 
                     if (result.MessageType == WebSocketMessageType.Close)
                     {
                         break;
                     }
 
-                    var message = Encoding.UTF8.GetString( buffer,0, result.Count);
+                    var message = Encoding.UTF8.GetString(payload.ToArray());
 
                     await _manager.BroadcastAsync( message, token);
-                    _logger.LogInformation("Received message: {Message}", message);
+                    _logger.LogDebug("Received message: {Message}", message);
                     if (message != "0")
                     {
-                        await SaveOrQueueAsync(message, DateTime.Now, token);
+                        await _persistence.Writer.WriteAsync(new PendingLotteryResult
+                        {
+                            Data = message,
+                            ReceivedAt = DateTime.Now
+                        }, token);
                     }
                 }
                 catch (OperationCanceledException)

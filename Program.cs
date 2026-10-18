@@ -16,6 +16,8 @@ namespace xsmbsocket
                 .WriteTo.File(
                     path: "Logs/log-.txt",                // đường dẫn log
                     rollingInterval: RollingInterval.Day, // mỗi ngày 1 file
+                    fileSizeLimitBytes: 10 * 1024 * 1024,
+                    rollOnFileSizeLimit: true,
                     retainedFileCountLimit: 7,            // giữ tối đa 7 ngày
                     outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message}{NewLine}{Exception}"
                 )

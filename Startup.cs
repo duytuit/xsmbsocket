@@ -73,6 +73,7 @@ namespace xsmbsocket
             services.AddLotteryModule();
             services.AddSingleton<WebSocketManager>();
             services.AddHostedService<LiveSocketService>();
+            services.AddHostedService<LotteryResultsTransferService>();
             services.AddHostedService<ClientCleanupService>();
             services.AddHostedService<HeartbeatService>();
             services.AddHostedService<LotteryResultCleanupService>();
