@@ -170,10 +170,6 @@ namespace xsmbsocket.Lotterys.Repositories
                     item.OddEven,
                     item.Size
                 });
-            if (resultId != null && (item.GameCode == "MAX3D" || item.GameCode == "MAX3D_PLUS" || item.GameCode == "MAX3D_PRO"))
-            {
-                return resultId.Value;
-            }
             // ==========================================
             // XÓA GIẢI CŨ
             // ==========================================

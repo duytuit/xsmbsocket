@@ -369,15 +369,41 @@ namespace xsmbsocket.Services
                         .TextContent
                         .Trim();
 
-                var numbers =
+                var numberTexts =
                     cells[1]
                         .QuerySelectorAll(
                             "span.red.bold.large")
                         .Select(x =>
                             x.TextContent.Trim())
                         .Where(x =>
-                            !string.IsNullOrEmpty(x))
+                            Regex.IsMatch(
+                                x,
+                                @"^\d{1,3}$"))
                         .ToList();
+
+                var numbers =
+                    new List<string>();
+
+                if (numberTexts.All(x => x.Length == 3))
+                {
+                    numbers.AddRange(numberTexts);
+                }
+                else if (numberTexts.Count > 0 &&
+                         numberTexts.All(x => x.Length == 1) &&
+                         numberTexts.Count % 3 == 0)
+                {
+                    for (int i = 0; i < numberTexts.Count; i += 3)
+                    {
+                        numbers.Add(
+                            string.Concat(
+                                numberTexts.Skip(i).Take(3)));
+                    }
+                }
+                else
+                {
+                    numbers.AddRange(
+                        numberTexts.Where(x => x.Length == 3));
+                }
 
                 if (numbers.Count == 0)
                     continue;
@@ -551,17 +577,37 @@ namespace xsmbsocket.Services
         // CÁC BỘ 3 SỐ
         // ==========================================
 
-        var numbers =
+        var numberTexts =
             cells[1]
                 .QuerySelectorAll(
                     "span.red.bold.large")
                 .Select(x =>
                     x.TextContent.Trim())
+                .ToList();
+
+        var numbers =
+            numberTexts
                 .Where(x =>
                     Regex.IsMatch(
                         x,
                         @"^\d{3}$"))
                 .ToList();
+
+        if (numbers.Count == 0 &&
+            numberTexts.Count > 0 &&
+            numberTexts.Count % 3 == 0 &&
+            numberTexts.All(x =>
+                Regex.IsMatch(
+                    x,
+                    @"^\d$")))
+        {
+            for (int i = 0; i < numberTexts.Count; i += 3)
+            {
+                numbers.Add(
+                    string.Concat(
+                        numberTexts.Skip(i).Take(3)));
+            }
+        }
 
         if (numbers.Count == 0)
         {
