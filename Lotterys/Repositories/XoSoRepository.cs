@@ -25,10 +25,10 @@ namespace xsmbsocket.Lotterys.Repositories
             await using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync(cancellationToken);
             using var transaction = connection.BeginTransaction(IsolationLevel.Serializable);
-            var parameters = new { result.Region, result.ProvinceCode, DrawDate = result.DrawDate.Date };
+            var parameters = new { result.Region, result.ProvinceName, DrawDate = result.DrawDate.Date };
             var existing = await connection.QuerySingleOrDefaultAsync<StoredResult>(new CommandDefinition(@"
                 SELECT Id, Prizes FROM dbo.XoSoResults WITH (UPDLOCK, HOLDLOCK)
-                WHERE Region = @Region AND ProvinceCode = @ProvinceCode
+                WHERE Region = @Region AND ProvinceName = @ProvinceName
                   AND DrawDate >= @DrawDate AND DrawDate < DATEADD(day, 1, @DrawDate);",
                 parameters, transaction: transaction, cancellationToken: cancellationToken));
             var prizes = existing == null || string.IsNullOrWhiteSpace(existing.Prizes)
