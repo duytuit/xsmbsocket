@@ -115,8 +115,6 @@ namespace xsmbsocket
             var telegramConfig = app.ApplicationServices.GetRequiredService<IOptions<TelegramSettings>>();
             Helper.ConfigureTelegram(telegramConfig.Value);
 
-            app.UseHttpsRedirection();
-
             app.UseRouting();
 
             app.UseCors("AllowAll"); // Quan trọng: phải đặt trước UseAuthorization nếu có
